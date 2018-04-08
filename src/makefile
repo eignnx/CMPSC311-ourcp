@@ -29,5 +29,6 @@ server: server.c proj.h
 	$(COMPILER) $(FLAGS) server.c -o server
 
 clean:
-	rm -vf {client,server}
+	rm -vf client
+	rm -vf server
 
