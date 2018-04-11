@@ -16,14 +16,24 @@ void prompt_for_address(struct sockaddr_in *address, char *who)
                             (const char *) &buf,
                             &(address->sin_addr.s_addr));
 
-        if (err == 0) {
+        // Allow early escape.
+        if (buf[0] == 'q' || buf[0] == 'Q') {
+            printf("Quitting...\n");
+            exit(0);
+        }
+
+        if (err > 0) {
+            break;
+        }
+        else if (err == 0) {
             printf("Improperly formatted address '%s'\n", buf);
-            printf(": ");
+            printf("Try again: ");
+            fflush(stdout);
         }
         else if (err == -1) {
-            sprintf(buf, "Could not convert address '%s' to numeric", buf);
-            perror(buf);
-            exit(1);
+            printf("Could not convert address '%s' to numeric\n", buf);
+            printf("Try again: ");
+            fflush(stdout);
         }
     }
 }
@@ -38,18 +48,20 @@ void prompt_for_port(struct sockaddr_in *address, char *who)
         fgets(buf, sizeof(buf), stdin);
         buf[strlen(buf) - 1] = '\0'; // Chop off newline.
 
-        if (strcmp(buf, "quit") == 0) {
+        // Allow early escape.
+        if (buf[0] == 'q' || buf[0] == 'Q') {
             printf("Quitting...\n");
             exit(0);
         }
 
         port = atoi(buf);
-        if (port >= 1 || port <= 65535) {
+        if (port >= 1 && port <= 65535) {
             break;
         }
         else {
             printf("Bad port number. Must be within 1-65,535.\n");
-            printf(": ");
+            printf("Try again: ");
+            fflush(stdout);
         }
     }
 
