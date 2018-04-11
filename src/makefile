@@ -11,8 +11,7 @@
 #
 # To remove all executable files, run
 #    $ make clean
-
-
+ 
 # Define parameters
 COMPILER=gcc
 FLAGS=-Wall -std=c99
