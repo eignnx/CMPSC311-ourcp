@@ -8,8 +8,9 @@ void prompt_for_address(struct sockaddr_in *address, char *who)
     char buf[INP_BUF_SIZE];
 
     printf("Enter the %s's IP address: ", who);
-    while (0) {
+    while (1) {
         fgets(buf, sizeof(buf), stdin);
+        buf[strlen(buf) - 1] = '\0'; // Chop off newline.
 
         int err = inet_pton(AF_INET,
                             (const char *) &buf,
@@ -35,6 +36,7 @@ void prompt_for_port(struct sockaddr_in *address, char *who)
     printf("Enter the %s's port number: ", who);
     while (1) {
         fgets(buf, sizeof(buf), stdin);
+        buf[strlen(buf) - 1] = '\0'; // Chop off newline.
 
         if (strcmp(buf, "quit") == 0) {
             printf("Quitting...\n");
