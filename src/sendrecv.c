@@ -75,12 +75,75 @@ void prompt_for_port(struct sockaddr_in *address, char *who)
 }
 
 
-void send_file(int socket_descriptor, int file_descriptor)
+
+void send_msg(int sd, union any_msg *to_send)
 {
-    
+    int type = to_send->any.msg_type;
+    switch (type) {
+        case CMD_SEND:
+        case CMD_RECV: // Fallthrough allows "or".
+        {
+            struct send_msg *msgp = (struct send_msg *) to_send;
+            // UNIMPLEMENTED
+            break;
+        }
+        case CMD_RESP:
+        {
+            struct resp_msg *msgp = (struct resp_msg *) to_send;
+            // UNIMPLEMENTED
+            break;
+        }
+        case CMD_DATA:
+        {
+            struct data_msg *msgp = (struct data_msg *) to_send;
+            // UNIMPLEMENTED
+            break;
+        }
+        default:
+            fprintf(stderr, "send_msg: Bad msg_type '%x'!\n", type);
+            exit(1);
+    }
 }
 
-void recv_file(int socket_descriptor, char *filename, int file_size)
+void recv_msg(int sd, union any_msg *receiving_buf, int msg_type)
+{
+    int bytes_expected = MSG_SIZE(msg_type);    
+    int bytes_recvd = recv(sd, (void *) receiving_buf, bytes_expected, 0);
+
+    if (bytes_recvd == 0) {
+        fprintf(stderr, "recv_msg: no data available, peer may have "
+                        "been shutdown\n");
+        exit(1);
+    }
+    else if (bytes_recvd == -1) {
+        perror("recv_msg: could not recieve data from peer");
+        exit(1);
+    }
+    else if (bytes_recvd != bytes_expected) {
+        fprintf(stderr, "recv_msg: expected %d bytes, recv'd %d bytes\n",
+                bytes_expected, bytes_recvd);
+    }
+}
+
+
+void send_data(int sd, struct data_msg *to_send)
 {
 
 }
+
+void recv_data(int sd, struct data_msg *receiving_buf)
+{
+
+}
+
+
+void send_file(int sd, int fd)
+{
+
+}
+
+void recv_file(int sd, char *filename, int file_size)
+{
+
+}
+
