@@ -1,45 +1,86 @@
+// sendrecv.c
+//
+// Holds functions that are common to both client and server.
+//
+
 #include "proj.h"
 
-// Used by client to tell server either:
-//      "I will be sending a file"
-//      "I'd like to recieve a file"
-struct send_msg {
 
-    // Either CMD_SEND or CMD_RECV
-    // Note: defined in proj.h
-    int msg_type;
+#define INP_BUF_SIZE 100
 
-    // Size (in bytes) of file to be sent (or 0 if not applicable)
-    int file_size;
+void prompt_for_address(struct sockaddr_in *address, char *who)
+{
+    char buf[INP_BUF_SIZE];
 
-    // Name of file to be send/recieved
-    char filename[MAX_FILENAME_SIZE];
-};
+    printf("Enter the %s's IP address: ", who);
+    while (1) {
+        fgets(buf, sizeof(buf), stdin);
+        buf[strlen(buf) - 1] = '\0'; // Chop off newline.
 
-// Used by server to respond to a client's requests
-struct resp_msg {
+        int err = inet_pton(AF_INET,
+                            (const char *) &buf,
+                            &(address->sin_addr.s_addr));
 
-    // Either CMD_SEND or CMD_RECV
-    int msg_type;
+        // Allow early escape.
+        if (buf[0] == 'q' || buf[0] == 'Q') {
+            printf("Quitting...\n");
+            exit(0);
+        }
 
-    // Either OK or else some value of `errno`
-    // Note: `OK` is defined as 0 in proj.h
-    int status;
+        if (err > 0) {
+            break;
+        }
+        else if (err == 0) {
+            printf("Improperly formatted address '%s'\n", buf);
+            printf("Try again: ");
+            fflush(stdout);
+        }
+        else if (err == -1) {
+            printf("Could not convert address '%s' to numeric\n", buf);
+            printf("Try again: ");
+            fflush(stdout);
+        }
+    }
+}
 
-    // Only used by server when transferring a file
-    // from server to client (and when status is OK)
-    int file_size;
-};
+void prompt_for_port(struct sockaddr_in *address, char *who)
+{
+    char buf[INP_BUF_SIZE];
+    int port;
 
-struct data_msg {
+    printf("Enter the %s's port number: ", who);
+    while (1) {
+        fgets(buf, sizeof(buf), stdin);
+        buf[strlen(buf) - 1] = '\0'; // Chop off newline.
+
+        // Allow early escape.
+        if (buf[0] == 'q' || buf[0] == 'Q') {
+            printf("Quitting...\n");
+            exit(0);
+        }
+
+        port = atoi(buf);
+        if (port >= 1 && port <= 65535) {
+            break;
+        }
+        else {
+            printf("Bad port number. Must be within 1-65,535.\n");
+            printf("Try again: ");
+            fflush(stdout);
+        }
+    }
+
+    // Convert port number to network byte order.
+    address->sin_port = htons(port);
+}
+
+
+void send_file(int socket_descriptor, int file_descriptor)
+{
     
-    // Always CMD_DATA
-    int msg_type;
+}
 
-    // Number of bytes of `buffer` that are actually filled
-    int data_leng;
+void recv_file(int socket_descriptor, char *filename, int file_size)
+{
 
-    // Data buffer
-    char buffer[MAX_DATA_SIZE];
-};
-
+}
