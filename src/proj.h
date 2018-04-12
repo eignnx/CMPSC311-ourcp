@@ -21,13 +21,13 @@
 // than 16^4 bytes.
 
 // Sending file from CLIENT to SERVER
-#define CMD_SEND 0xAAAA0000 | sizeof(struct send_msg)
+#define CMD_SEND (0xAAAA0000 | sizeof(struct send_msg))
 // Sending file from SERVER to CLIENT
-#define CMD_RECV 0xBBBB0000 | sizeof(struct send_msg)
+#define CMD_RECV (0xBBBB0000 | sizeof(struct send_msg))
 // Sent by server to client as acknowledgement
-#define CMD_RESP 0xCCCC0000 | sizeof(struct resp_msg)
+#define CMD_RESP (0xCCCC0000 | sizeof(struct resp_msg))
 // Header for a data message
-#define CMD_DATA 0xDDDD0000 | sizeof(struct data_msg)
+#define CMD_DATA (0xDDDD0000 | sizeof(struct data_msg))
 
 // Macro that extracts the `sizeof` the associated struct from
 // a `msg_type` value.
