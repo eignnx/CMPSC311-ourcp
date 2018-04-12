@@ -96,7 +96,7 @@ void send_msg(int sd, union any_msg *to_send)
         case CMD_DATA:
         {
             struct data_msg *msgp = (struct data_msg *) to_send;
-            // UNIMPLEMENTED
+            send_data(sd, msgp);
             break;
         }
         default:
@@ -128,12 +128,16 @@ void recv_msg(int sd, union any_msg *receiving_buf, int msg_type)
 
 void send_data(int sd, struct data_msg *to_send)
 {
-
+    int err = send(sd, (void *) msgp, sizeof(*msgp), 0);
+    if (err == -1) {
+        perror("send_data: could not send data_msg");
+        exit(1);
+    }
 }
 
 void recv_data(int sd, struct data_msg *receiving_buf)
 {
-
+    recv_msg(sd, (union any_msg *) recieving_buf, CMD_DATA);
 }
 
 
