@@ -68,3 +68,14 @@ void prompt_for_port(struct sockaddr_in *address, char *who)
     // Convert port number to network byte order.
     address->sin_port = htons(port);
 }
+
+
+void send_file(int socket_descriptor, int file_descriptor)
+{
+    
+}
+
+void recv_file(int socket_descriptor, char *filename, int file_size)
+{
+
+}

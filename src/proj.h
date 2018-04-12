@@ -31,3 +31,14 @@ void prompt_for_address(struct sockaddr_in *address, char *who);
 void prompt_for_port(struct sockaddr_in *address, char *who);
 
 
+// Sends the file opened under `file_descriptor` accross the
+// network to the peer located by `socket_descriptor`.
+// Assumes both arguments have been opened already.
+void send_file(int socket_descriptor, int file_descriptor);
+
+// Recieves a file from the peer located by `socket_descriptor`
+// and saves it to the file called `filename`. Assumes that the
+// socket has been opened, and the file to be recieved is
+// `file_size` bytes in length.
+void recv_file(int socket_descriptor, char *filename, int file_size);
+
