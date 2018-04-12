@@ -17,6 +17,7 @@
 // Values are arbitrary, but may help in debugging.
 #define CMD_SEND 0xDEADBEEF // Sending file from CLIENT to SERVER
 #define CMD_RECV 0x1337C0DE // Sending file from SERVER to CLIENT
+#define CMD_RESP 0xC0FFEE00 // Sent by server to client as acknowledgement
 #define CMD_DATA 0xFACEFEED // Header for a data message
 
 #define OK 0
