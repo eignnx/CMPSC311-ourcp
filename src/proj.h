@@ -11,7 +11,7 @@
 
 // For use in `sendrecv.c`
 #define MAX_FILENAME_SIZE 128
-#define BUFFER_BYTES 1024
+#define MAX_DATA_SIZE 1024
 
 // Used in msg structures.
 // Values are arbitrary, but may help in debugging.

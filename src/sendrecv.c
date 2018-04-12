@@ -40,6 +40,6 @@ struct data_msg {
     int data_leng;
 
     // Data buffer
-    char buffer[BUFFER_BYTES];
+    char buffer[MAX_DATA_SIZE];
 };
 
