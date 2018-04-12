@@ -15,9 +15,9 @@
 
 // Used in msg structures.
 // Values are arbitrary, but may help in debugging.
-#define CMD_SEND 0xDEADBEEF
-#define CMD_RECV 0x1337C0DE
-#define CMD_DATA 0xFACEFEED
+#define CMD_SEND 0xDEADBEEF // Sending file from CLIENT to SERVER
+#define CMD_RECV 0x1337C0DE // Sending file from SERVER to CLIENT
+#define CMD_DATA 0xFACEFEED // Header for a data message
 
 #define OK 0
 
