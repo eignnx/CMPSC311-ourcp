@@ -14,12 +14,27 @@
 #define MAX_FILENAME_SIZE 128
 #define MAX_DATA_SIZE 1024
 
-// Values are arbitrary, but may help in debugging.
-#define CMD_SEND 0xDEADBEEF // Sending file from CLIENT to SERVER
-#define CMD_RECV 0x1337C0DE // Sending file from SERVER to CLIENT
-#define CMD_RESP 0xC0FFEE00 // Sent by server to client as acknowledgement
-#define CMD_DATA 0xFACEFEED // Header for a data message
 
+// First four hex digits chosen to make debugging easier (should
+// we need to read hex dumps). Second four digits specify the size
+// of the assocated struct. Assumes sizeof all the structs are less
+// than 16^4 bytes.
+
+// Sending file from CLIENT to SERVER
+#define CMD_SEND 0xAAAA0000 | sizeof(struct send_msg)
+// Sending file from SERVER to CLIENT
+#define CMD_RECV 0xBBBB0000 | sizeof(struct send_msg)
+// Sent by server to client as acknowledgement
+#define CMD_RESP 0xCCCC0000 | sizeof(struct resp_msg)
+// Header for a data message
+#define CMD_DATA 0xDDDD0000 | sizeof(struct data_msg)
+
+// Macro that extracts the `sizeof` the associated struct from
+// a `msg_type` value.
+#define MSG_SIZE(msg_type) ((msg_type) & 0x0000FFFF)
+
+
+// To be used in the `status` field of a resp_msg structure.
 #define OK 0
 
 // Used by client to tell server either:
@@ -66,6 +81,21 @@ struct data_msg {
 };
 
 
+struct tag_msg {
+    int msg_type;
+};
+
+// Generic message type. Could be either a send, resp, or data
+// msg. The `tag_msg` variant is just there to provide a variant
+// to switch on.
+union any_msg {
+    struct send_msg   send;
+    struct resp_msg   resp;
+    struct data_msg   data;
+
+    // Not used except when switching on `msg_type`.
+    struct tag_msg any;
+};
 
 ////// Common Functions //////
 
@@ -77,14 +107,28 @@ void prompt_for_address(struct sockaddr_in *address, char *who);
 void prompt_for_port(struct sockaddr_in *address, char *who);
 
 
-// Sends the file opened under `file_descriptor` accross the
-// network to the peer located by `socket_descriptor`.
-// Assumes both arguments have been opened already.
-void send_file(int socket_descriptor, int file_descriptor);
+// Generic message sending and recieving functions. To use, cast
+// argument like:
+//      (union any_msg *) &my_msg_stuct_of_any_type
+// The argument `sd` is the socket descriptor to recv/send from/to.
+// The argument `msg_type` accepts the type of the message you expect
+// to recieve.
+void send_msg(int sd, union any_msg *to_send);
+void recv_msg(int sd, union any_msg *receiving_buf, int msg_type);
 
-// Recieves a file from the peer located by `socket_descriptor`
+// Specialized send/recv functions for sending data messages.
+// Only use with `struct data_msg` pointers, don't cast!
+// The argument `sd` is the socket descriptor to recv/send from/to.
+void send_data(int sd, struct data_msg *to_send);
+void recv_data(int sd, struct data_msg *receiving_buf);
+
+// Sends the file opened under file descriptor `fd` accross the
+// network to the peer located by socket descriptor `sd`.
+// Assumes both arguments have been opened already.
+void send_file(int sd, int fd);
+
+// Recieves a file from the peer located by socket descriptor `sd`
 // and saves it to the file called `filename`. Assumes that the
-// socket has been opened, and the file to be recieved is
-// `file_size` bytes in length.
-void recv_file(int socket_descriptor, char *filename, int file_size);
+// socket has been opened.
+void recv_file(int sd, char *filename, int file_size);
 
