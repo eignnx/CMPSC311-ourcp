@@ -20,19 +20,15 @@ FLAGS=-Wall -std=c99
 all: client server
 
 # Build client using client.c and proj.h and object files
-client: client.c proj.h sendrecv.o proj.o
-	$(COMPILER) $(FLAGS) client.c sendrecv.o proj.o -o client
+client: client.c proj.h sendrecv.o
+	$(COMPILER) $(FLAGS) client.c sendrecv.o -o client
 
 # Build server using server.c and proj.h and object files
-server: server.c proj.h sendrecv.o proj.o
-	$(COMPILER) $(FLAGS) server.c sendrecv.o proj.o -o server
+server: server.c proj.h sendrecv.o
+	$(COMPILER) $(FLAGS) server.c sendrecv.o -o server
 
 # Compile sendrecv.c to object file
 sendrecv.o: sendrecv.c
-	$(COMPILER) $(FLAGS) -c $^
-
-# Compile proj.c to object file
-proj.o: proj.c
 	$(COMPILER) $(FLAGS) -c $^
 
 # Deletes all executables and object files.
