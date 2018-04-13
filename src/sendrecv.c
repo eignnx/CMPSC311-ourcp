@@ -116,6 +116,7 @@ void recv_msg(int sd, union any_msg *receiving_buf, int msg_type)
         exit(1);
     }
     else if (bytes_recvd == -1) {
+        // errno will be generated, so just print that.
         perror("recv_msg: could not recieve data from peer");
         exit(1);
     }
@@ -128,7 +129,7 @@ void recv_msg(int sd, union any_msg *receiving_buf, int msg_type)
 
 void send_data(int sd, struct data_msg *to_send)
 {
-    int err = send(sd, (void *) msgp, sizeof(*msgp), 0);
+    int err = send(sd, (void *) to_send, sizeof(*to_send), 0);
     if (err == -1) {
         perror("send_data: could not send data_msg");
         exit(1);
@@ -137,17 +138,81 @@ void send_data(int sd, struct data_msg *to_send)
 
 void recv_data(int sd, struct data_msg *receiving_buf)
 {
-    recv_msg(sd, (union any_msg *) recieving_buf, CMD_DATA);
+    recv_msg(sd, (union any_msg *) receiving_buf, CMD_DATA);
 }
 
-
+// TODO: Impl error handling and send resp_msg {.status=ERROR} when
+// bad stuff does happen.
 void send_file(int sd, int fd)
 {
+    struct data_msg msg = {
+        .msg_type = CMD_DATA,
+        .data_leng = 0
+    };
 
+    const int buf_size = sizeof(msg.buffer);
+
+    while ((msg.data_leng = read(fd, msg.buffer, buf_size)) != 0) {
+        send_data(sd, &msg);
+        printf("Sent %d bytes from file\n", msg.data_leng);
+    }
+
+    // After while loop, msg.data_leng == 0.
+    // Send final data message with nothing in buffer to
+    // signal end of transmission.
+    send_data(sd, &msg);
 }
 
+
+// TODO: Impl error handling for when some resp_msg {.status=ERROR}
+// is sent.
 void recv_file(int sd, char *filename, int file_size)
 {
+    struct data_msg buf;
+    int total_bytes = 0;
+    int err;
 
+    int fd = open(filename, O_CREAT | O_WRONLY | O_TRUNC, OPEN_PERMS);
+    if (fd == -1) {
+        char err_msg[MAX_FILENAME_SIZE + 40];
+        sprintf(err_msg, "recv_file: Could not create/overwrite file "
+                         "with name '%s'", filename);
+        perror(err_msg);
+        exit(1);
+    }
+
+    do {
+        recv_data(sd, &buf);
+        printf("Read %d bytes\n", buf.data_leng);
+
+        int bytes_written = write(fd, buf.buffer, buf.data_leng);
+        
+        if (bytes_written == -1) {
+            perror("recv_file: Unable to write to output file");
+            exit(1);
+        }
+        
+        if (bytes_written != buf.data_leng) {
+            fprintf(stderr, "recv_file: Number of bytes recv'd from "
+                            "socket does not match number of bytes "
+                            "written to file!\n"
+                            "    Recv'd: %d\n"
+                            "    Wrote:  %d\n",
+                            buf.data_leng, bytes_written);
+            exit(1);
+        }
+
+        total_bytes += bytes_written;
+
+    } while (buf.data_leng != 0);
+    
+
+    printf("Wrote %d bytes to output file '%s'\n", total_bytes, filename);
+    
+    err = close(fd);
+    if (err == -1) {
+        perror("An error occured while trying to close the output file");
+        exit(1);
+    }
 }
 

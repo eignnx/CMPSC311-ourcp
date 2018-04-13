@@ -3,10 +3,20 @@
 #include <string.h>     // strcmp
 #include <stdbool.h>    // true, false
 
+#include <unistd.h>     // read, write, close
+
+#include <sys/types.h>  // open
+#include <sys/stat.h>   // open
+#include <fcntl.h>      // open
+
 #include <sys/types.h>  // COMPATIBILITY (see `man socket`)
 #include <sys/socket.h> // socket
 #include <netinet/in.h> // struct sockaddr_in
 #include <arpa/inet.h>  // htons, inet_pton
+
+
+// Define permissions for writing files.
+#define OPEN_PERMS 0644
 
 
 ////// Message Structures //////
