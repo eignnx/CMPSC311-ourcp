@@ -79,30 +79,27 @@ void prompt_for_port(struct sockaddr_in *address, char *who)
 void send_msg(int sd, union any_msg *to_send)
 {
     int type = to_send->any.msg_type;
-    switch (type) {
-        case CMD_SEND:
-        case CMD_RECV: // Fallthrough allows "or".
-        {
-            struct send_msg *msgp = (struct send_msg *) to_send;
-            // UNIMPLEMENTED
-            break;
-        }
-        case CMD_RESP:
-        {
-            struct resp_msg *msgp = (struct resp_msg *) to_send;
-            // UNIMPLEMENTED
-            break;
-        }
-        case CMD_DATA:
-        {
-            struct data_msg *msgp = (struct data_msg *) to_send;
-            send_data(sd, msgp);
-            break;
-        }
-        default:
-            fprintf(stderr, "send_msg: Bad msg_type '%x'!\n", type);
+    
+    bool valid =
+        type == CMD_SEND ||
+        type == CMD_RECV ||
+        type == CMD_RESP ||
+        type == CMD_DATA;
+
+    if (valid) {
+        int err = send(sd, (void *) to_send, MSG_SIZE(type), 0);
+        if (err == -1) {
+            perror("send_msg: could not send message");
+            fprintf(stderr, "\tMessage type was '%x'\n", type);
             exit(1);
+        }
     }
+    else {
+        fprintf(stderr, "send_msg: unrecognized message type '%x'!\n",
+                type);
+        exit(1);
+    }
+
 }
 
 void recv_msg(int sd, union any_msg *receiving_buf, int msg_type)
