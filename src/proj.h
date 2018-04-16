@@ -116,6 +116,12 @@ union any_msg {
 void prompt_for_address(struct sockaddr_in *address, char *who);
 void prompt_for_port(struct sockaddr_in *address, char *who);
 
+// Attempts to open a file called `filename` in the CWD. If successful,
+// `*fd` is set to the file descriptor of the open file and the
+// function returns true. If unsucessful, `*fd` is set to `errno`
+// and the function returns false.
+bool locate_file(const char *filename, int *fd);
+
 
 // Generic message sending and recieving functions. To use, cast
 // argument like:
