@@ -15,6 +15,8 @@
 #include <arpa/inet.h>  // htons, inet_pton
 
 
+extern int errno;
+
 // Define permissions for writing files.
 #define OPEN_PERMS 0644
 
