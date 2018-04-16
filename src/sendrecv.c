@@ -75,6 +75,19 @@ void prompt_for_port(struct sockaddr_in *address, char *who)
 }
 
 
+bool locate_file(const char *filename, int *fd)
+{
+    *fd = open(filename, O_RDONLY);
+    
+    if (*fd == -1) {
+        *fd = errno;
+        return false;
+    }
+
+    return true;
+}
+
+
 
 void send_msg(int sd, union any_msg *to_send)
 {
