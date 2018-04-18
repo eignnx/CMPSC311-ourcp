@@ -274,7 +274,16 @@ void recv_file(int sd, char *filename, int file_size)
                "peer");
         fprintf(stderr, "Aborting file transfer.\n");
 
-        // Delete output file (will happen when `fd` is closed).
+        // Deletion of output file (will happen when `fd` is closed).
+        if (remove(filename) == -1) {
+            perror("recv_file: Removal of incomplete output file failed");
+        }
+    }
+    else if (file_size != total_bytes) {
+        fprintf(stderr, "recv_file: File recv'd has different size than "
+                "expected. Removing incomplete output file...\n");
+
+        // Deletion of output file (will happen when `fd` is closed).
         if (remove(filename) == -1) {
             perror("recv_file: Removal of incomplete output file failed");
         }
