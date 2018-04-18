@@ -91,7 +91,7 @@ bool locate_file(const char *filename, int *fd)
 
 void send_msg(int sd, union any_msg *to_send)
 {
-    int type = to_send->any.msg_type;
+    MsgType type = to_send->any.msg_type;
     
     bool valid =
         type == CMD_SEND ||
@@ -115,9 +115,9 @@ void send_msg(int sd, union any_msg *to_send)
 
 }
 
-void recv_msg(int sd, union any_msg *receiving_buf, int msg_type)
+void recv_msg(int sd, union any_msg *receiving_buf, MsgType msg_type)
 {
-    int bytes_expected = MSG_SIZE(msg_type);    
+    int bytes_expected = MSG_SIZE(msg_type);
     int bytes_recvd = recv(sd, (void *) receiving_buf, bytes_expected, 0);
 
     if (bytes_recvd == 0) {
@@ -151,8 +151,6 @@ void recv_data(int sd, struct data_msg *receiving_buf)
     recv_msg(sd, (union any_msg *) receiving_buf, CMD_DATA);
 }
 
-// TODO: Impl error handling and send resp_msg {.status=ERROR} when
-// bad stuff does happen.
 void send_file(int sd, int fd)
 {
     struct data_msg msg = {
@@ -163,66 +161,135 @@ void send_file(int sd, int fd)
     const int buf_size = sizeof(msg.buffer);
 
     while ((msg.data_leng = read(fd, msg.buffer, buf_size)) != 0) {
-        send_data(sd, &msg);
+
+        if (msg.data_leng == -1) { // Must inform peer.
+            msg.data_leng = -errno; // Send errno to peer.
+            perror("send_msg: an error occured while reading file");
+            fprintf(stderr, "Aborting file transmission.\n");
+            break;
+        }
+
+        send_msg(sd, (union any_msg *) &msg);
         printf("Sent %d bytes from file\n", msg.data_leng);
     }
 
-    // After while loop, msg.data_leng == 0.
+    // If all went well, msg.data_leng == 0 here.
     // Send final data message with nothing in buffer to
     // signal end of transmission.
-    send_data(sd, &msg);
+    //
+    // If an error occurred, msg.data_leng == -errno.
+    // This will be caught and handled by `recv_file`.
+    send_msg(sd, (union any_msg *) &msg);
 }
 
 
-// TODO: Impl error handling for when some resp_msg {.status=ERROR}
-// is sent.
-void recv_file(int sd, char *filename, int file_size)
+// Exits with error message if error occurs.
+// Pass the `callee` parameter the value `__func__` for better error info.
+static int safe_open_for_write(const char *filename, const char *callee)
 {
-    struct data_msg buf;
-    int total_bytes = 0;
-    int err;
-
     int fd = open(filename, O_CREAT | O_WRONLY | O_TRUNC, OPEN_PERMS);
+
     if (fd == -1) {
         char err_msg[MAX_FILENAME_SIZE + 40];
-        sprintf(err_msg, "recv_file: Could not create/overwrite file "
-                         "with name '%s'", filename);
+        sprintf(err_msg, "%s: Could not create/overwrite file "
+                         "with name '%s'", callee, filename);
         perror(err_msg);
         exit(1);
     }
 
-    do {
-        recv_data(sd, &buf);
-        printf("Read %d bytes\n", buf.data_leng);
+    return fd;
+}
 
-        int bytes_written = write(fd, buf.buffer, buf.data_leng);
-        
-        if (bytes_written == -1) {
-            perror("recv_file: Unable to write to output file");
-            exit(1);
-        }
-        
-        if (bytes_written != buf.data_leng) {
-            fprintf(stderr, "recv_file: Number of bytes recv'd from "
-                            "socket does not match number of bytes "
-                            "written to file!\n"
-                            "    Recv'd: %d\n"
-                            "    Wrote:  %d\n",
-                            buf.data_leng, bytes_written);
-            exit(1);
-        }
-
-        total_bytes += bytes_written;
-
-    } while (buf.data_leng != 0);
-    
-
-    printf("Wrote %d bytes to output file '%s'\n", total_bytes, filename);
-    
-    err = close(fd);
-    if (err == -1) {
-        perror("An error occured while trying to close the output file");
+// Exits with error message if error occurs.
+// Pass the `callee` parameter the value `__func__` for better error info.
+static void safe_close(int fd, const char *callee)
+{
+    if (close(fd) == -1) {
+        char msg[100];
+        sprintf(msg, "%s: An error occured while trying to close the "
+                     "output file", callee);
+        perror(msg);
         exit(1);
     }
+}
+
+// Exits with error message if error occurs.
+// Pass the `callee` parameter the value `__func__` for better error info.
+static int safe_write(int fd, const char *buf, int count,
+                      const char* callee)
+{
+
+    int bytes_written = write(fd, buf, count);
+
+    if (bytes_written == -1) {
+        char msg[100];
+        sprintf(msg, "%s: Unable to write to output file", callee);
+        perror(msg);
+        safe_close(fd, __func__);
+        exit(1);
+    }
+    
+    if (bytes_written != count) {
+        fprintf(stderr,
+                "%s: Could not write all %d bytes to output file.\n"
+                "\tExpected: %d\n"
+                "\tWrote:    %d\n",
+                callee, count, count, bytes_written);
+        safe_close(fd, __func__);
+        exit(1);
+    }
+
+    return bytes_written;
+}
+
+
+void recv_file(int sd, char *filename, int file_size)
+{
+    struct data_msg buf;
+    int total_bytes = 0;
+
+    int fd = safe_open_for_write(filename, __func__);
+
+    while (1) {
+        recv_msg(sd, (union any_msg *) &buf, CMD_DATA);
+
+        if (buf.msg_type != CMD_DATA) {
+            fprintf(stderr, "recv_file: Unexpected msg type '%x'! "
+                    "Aborting file transfer.\n", buf.msg_type);
+            safe_close(fd, __func__);
+            exit(1);
+        }
+
+        if (buf.data_leng <= 0)
+            break;
+        
+        printf("Read %d bytes\n", buf.data_leng);
+
+        total_bytes += safe_write(fd, buf.buffer, buf.data_leng, __func__);
+    }
+
+    if (buf.data_leng < 0) {
+        errno = -buf.data_leng; // Overwrite errno in current process.
+        perror("recv_file: An error occurred while recv'ing data from "
+               "peer");
+        fprintf(stderr, "Aborting file transfer.\n");
+
+        // Deletion of output file (will happen when `fd` is closed).
+        if (remove(filename) == -1) {
+            perror("recv_file: Removal of incomplete output file failed");
+        }
+    }
+    else if (file_size != total_bytes) {
+        fprintf(stderr, "recv_file: File recv'd has different size than "
+                "expected. Removing incomplete output file...\n");
+
+        // Deletion of output file (will happen when `fd` is closed).
+        if (remove(filename) == -1) {
+            perror("recv_file: Removal of incomplete output file failed");
+        }
+    }
+
+    printf("Wrote %d bytes to output file '%s'\n", total_bytes, filename);
+    safe_close(fd, __func__);
 }
 
