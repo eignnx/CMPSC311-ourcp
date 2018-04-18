@@ -14,8 +14,7 @@
 #include <netinet/in.h> // struct sockaddr_in
 #include <arpa/inet.h>  // htons, inet_pton
 
-
-extern int errno;
+#include <errno.h>      // errno
 
 // Define permissions for writing files.
 #define OPEN_PERMS 0644
@@ -143,10 +142,23 @@ void recv_data(int sd, struct data_msg *receiving_buf);
 // Sends the file opened under file descriptor `fd` accross the
 // network to the peer located by socket descriptor `sd`.
 // Assumes both arguments have been opened already.
+// Note: Does NOT close the file descriptor when done.
+//
+// If an error occurs while `send_file` is reading the file,
+// the function will send a `data_msg` with the `data_leng`
+// field set to the negative of `errno`. The file transmission
+// will then halt.
 void send_file(int sd, int fd);
 
 // Recieves a file from the peer located by socket descriptor `sd`
 // and saves it to the file called `filename`. Assumes that the
 // socket has been opened.
+//
+// If the sender encounters an error, a `data_msg` will be sent
+// with the `data_leng` field set to the negative of the `errno`
+// encountered. The reciever will then print out the associated
+// error message and then stop recv'ing messages from the socket.
+// At this point, since the output file would be incomplete, it
+// will be deleted.
 void recv_file(int sd, char *filename, int file_size);
 
