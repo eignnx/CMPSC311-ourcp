@@ -91,7 +91,7 @@ bool locate_file(const char *filename, int *fd)
 
 void send_msg(int sd, union any_msg *to_send)
 {
-    int type = to_send->any.msg_type;
+    MsgType type = to_send->any.msg_type;
     
     bool valid =
         type == CMD_SEND ||
@@ -115,7 +115,7 @@ void send_msg(int sd, union any_msg *to_send)
 
 }
 
-void recv_msg(int sd, union any_msg *receiving_buf, int msg_type)
+void recv_msg(int sd, union any_msg *receiving_buf, MsgType msg_type)
 {
     int bytes_expected = MSG_SIZE(msg_type);
     int bytes_recvd = recv(sd, (void *) receiving_buf, bytes_expected, 0);

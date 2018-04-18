@@ -2,6 +2,7 @@
 #include <stdlib.h>     // exit
 #include <string.h>     // strcmp
 #include <stdbool.h>    // true, false
+#include <stdint.h>     // uint32_t
 
 #include <unistd.h>     // read, write, close
 
@@ -26,27 +27,32 @@
 #define MAX_DATA_SIZE 1024
 
 
+////// CMD Constants //////
+
+typedef uint32_t MsgType;
+
 // First four hex digits chosen to make debugging easier (should
 // we need to read hex dumps). Second four digits specify the size
 // of the assocated struct. Assumes sizeof all the structs are less
 // than 16^4 bytes.
 
 // Sending file from CLIENT to SERVER
-#define CMD_SEND (0xAAAA0000 | sizeof(struct send_msg))
+#define CMD_SEND (MsgType) (0xAAAA0000u | sizeof(struct send_msg))
 // Sending file from SERVER to CLIENT
-#define CMD_RECV (0xBBBB0000 | sizeof(struct send_msg))
+#define CMD_RECV (MsgType) (0xBBBB0000u | sizeof(struct send_msg))
 // Sent by server to client as acknowledgement
-#define CMD_RESP (0xCCCC0000 | sizeof(struct resp_msg))
+#define CMD_RESP (MsgType) (0xCCCC0000u | sizeof(struct resp_msg))
 // Header for a data message
-#define CMD_DATA (0xDDDD0000 | sizeof(struct data_msg))
+#define CMD_DATA (MsgType) (0xDDDD0000u | sizeof(struct data_msg))
 
 // Macro that extracts the `sizeof` the associated struct from
 // a `msg_type` value.
-#define MSG_SIZE(msg_type) ((msg_type) & 0x0000FFFF)
+#define MSG_SIZE(msg_type) (size_t) ((msg_type) & 0x0000FFFFu)
 
 
 // To be used in the `status` field of a resp_msg structure.
 #define OK 0
+
 
 // Used by client to tell server either:
 //      "I will be sending a file"
@@ -55,7 +61,7 @@ struct send_msg {
 
     // Either CMD_SEND or CMD_RECV
     // Note: defined in proj.h
-    int msg_type;
+    MsgType msg_type;
 
     // Size (in bytes) of file to be sent (or 0 if not applicable)
     int file_size;
@@ -68,7 +74,7 @@ struct send_msg {
 struct resp_msg {
 
     // Either CMD_SEND or CMD_RECV
-    int msg_type;
+    MsgType msg_type;
 
     // Either OK or else some value of `errno`
     // Note: `OK` is defined as 0 in proj.h
@@ -82,7 +88,7 @@ struct resp_msg {
 struct data_msg {
     
     // Always CMD_DATA
-    int msg_type;
+    MsgType msg_type;
 
     // Number of bytes of `buffer` that are actually filled
     int data_leng;
@@ -93,7 +99,7 @@ struct data_msg {
 
 
 struct tag_msg {
-    int msg_type;
+    MsgType msg_type;
 };
 
 // Generic message type. Could be either a send, resp, or data
@@ -107,6 +113,7 @@ union any_msg {
     // Not used except when switching on `msg_type`.
     struct tag_msg any;
 };
+
 
 ////// Common Functions //////
 
@@ -131,7 +138,7 @@ bool locate_file(const char *filename, int *fd);
 // The argument `msg_type` accepts the type of the message you expect
 // to recieve.
 void send_msg(int sd, union any_msg *to_send);
-void recv_msg(int sd, union any_msg *receiving_buf, int msg_type);
+void recv_msg(int sd, union any_msg *receiving_buf, MsgType msg_type);
 
 // Specialized send/recv functions for sending data messages.
 // Only use with `struct data_msg` pointers, don't cast!
