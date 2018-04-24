@@ -8,7 +8,7 @@
 
 
 
-int main(char argc, int *argv[]) {
+int main(int argc, char *argv[]) {
     char sfile[MAX_FILENAME_SIZE];
     char mtype[10];
 
@@ -75,3 +75,5 @@ int main(char argc, int *argv[]) {
     }
     close(sockfd);
     return 0;
+}
+
