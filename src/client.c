@@ -18,13 +18,13 @@ int main(int argc, char *argv[]){
 	//union any_msg p1;
 	struct send_msg p1;
 	struct resp_msg p2;
-	if(mtype == "CMD_SEND"){
+	if(strcmp(mtype, "CMD_SEND") == 0){
 		p1.msg_type = CMD_SEND;
-	}else if(mtype == "CMD_RECV"){
+	}else if(strcmp(mtype,"CMD_RECV") == 0){
 		p1.msg_type = CMD_RECV;
-	}else if(mtype == "CMD_RESP"){
+	}else if(strcmp(mtype,"CMD_RESP") == 0){
 		p1.msg_type = CMD_RESP;
-	}else if(mtype == "CMD_DATA"){
+	}else if(strcmp(mtype, "CMD_DATA")== 0){
 		p1.msg_type = CMD_DATA;
 	}else{
 		printf("Incorrect input\n");
