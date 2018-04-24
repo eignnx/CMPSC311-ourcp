@@ -14,18 +14,16 @@ int main(int argc, char *argv[]){
 	printf("Enter name of file to send => ");
 	scanf("%s", sfile);
 	
-	
+	printf("Enter 1 for send or 2 for receive => ");
+	int choice;
+	scanf("%d", choice);
 	//union any_msg p1;
 	struct send_msg p1;
 	struct resp_msg p2;
-	if(strcmp(mtype, "CMD_SEND") == 0){
+	if(choice == 1){
 		p1.msg_type = CMD_SEND;
-	}else if(strcmp(mtype,"CMD_RECV") == 0){
+	}else if(choice == 2){
 		p1.msg_type = CMD_RECV;
-	}else if(strcmp(mtype,"CMD_RESP") == 0){
-		p1.msg_type = CMD_RESP;
-	}else if(strcmp(mtype, "CMD_DATA")== 0){
-		p1.msg_type = CMD_DATA;
 	}else{
 		printf("Incorrect input\n");
 		exit(1);
