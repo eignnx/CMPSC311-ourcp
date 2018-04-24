@@ -1,10 +1,10 @@
 #include "proj.h"
 
-int main(char argc, int *argv[]){
+int main(int argc, char *argv[]){
 	char sfile[MAX_FILENAME_SIZE];
 	char mtype[10];
 	
-	struct sockaddr_in temp;
+	struct sockaddr_in *temp;
 	
 	prompt_for_address(temp,"client");
 	prompt_for_port(temp,"client");
@@ -18,41 +18,55 @@ int main(char argc, int *argv[]){
 	//union any_msg p1;
 	struct send_msg p1;
 	struct resp_msg p2;
-	p1.msg_type = mtype;
+	if(mtype == "CMD_SEND"){
+		p1.msg_type = CMD_SEND;
+	}else if(mtype == "CMD_RECV"){
+		p1.msg_type = CMD_RECV;
+	}else if(mtype == "CMD_RESP"){
+		p1.msg_type = CMD_RESP;
+	}else if(mtype == "CMD_DATA"){
+		p1.msg_type = CMD_DATA;
+	}else{
+		printf("Incorrect input\n");
+		exit(1);
+	}
+	//p1.msg_type = mtype;
 	//union any_msg p2;
 	
 	int sd = socket(AF_INET, SOCK_STREAM, 0);
-	temp.sin_family = AF_INET;
+	temp->sin_family = AF_INET;
 	int errcode = connect(sd, (struct sockaddr *) &temp, sizeof(temp));
-	//int sd = temp.sin_port;
+			
+	//int d = temp.sin_port;
 	int fd;
 	
 	if(strcmp(mtype, "CMD_SEND") == 0){
-		if(locate_file(sfile,fd)){
+		if(locate_file(sfile,&fd)){
 			printf("File exists\n");
+			send_msg(sd, (union any_msg *) &p1);
+			recv_msg(sd, (union any_msg *) &p2, CMD_RESP);
+		
+			if(p2.status == 0){		
+				sd = temp->sin_port; 
+				fd = open(sfile, O_RDWR);
+				send_file(sd, fd);
+				close(fd);
+			}else{
+				printf("Send Error\n");
+			}
 		}else{
 			printf("File does not exist\n");
 			exit(1);
 		}
 		
-		send_msg(sd, (union any_msg *) &p1);
-		recv_msg(sd, (union any_msg *) &p2, CMD_RESP);
 		
-		if(p2->resp_msg == 0){	
-			sd = temp.sin_port; 
-			fd = open(sfile, O_RDWR);
-			send(file(sd, fd);
-			close(fd);
-		}else{
-			printf("Send Error\n");
-		}
 	}else{
-		p1->msg_type = "CMD_RECV";
+		p1.msg_type = CMD_RECV;
 		send_msg(sd, (union any_msg *) &p1);
 		recv_msg(sd, (union any_msg *) &p2, CMD_RESP);
 		
-		if(p2->resp_msg == 0){
-			int temp = (union any_msg *) &p2.file_size;
+		if(p2.status == 0){
+			int temp = p2.file_size;
 			recv_file(sd, sfile, temp);
 		}else{
 			printf("Recieve Error\n");
