@@ -9,6 +9,7 @@
 
 
 int main(int argc, char *argv[]) {
+    int socketfd;
     char sfile[MAX_FILENAME_SIZE];
     char mtype[10];
 
