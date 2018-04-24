@@ -15,11 +15,14 @@ int main(char argc, int *argv[]){
 	scanf("%s", sfile);
 	
 	
-	union any_msg p1;
-	p1->any.msg_type = mtype;
-	union any_msg p2;
+	//union any_msg p1;
+	struct send_msg p1;
+	struct resp_msg p2;
+	p1.msg_type = mtype;
+	//union any_msg p2;
 	
-	int sd = temp.sin_port;
+	int sd = socket(AF_INET, SOCK_STREAM, 0);
+	//int sd = temp.sin_port;
 	int fd;
 	
 	if(strcmp(mtype, "CMD_SEND") == 0){
@@ -30,10 +33,12 @@ int main(char argc, int *argv[]){
 			exit(1);
 		}
 		
-		send_msg(sd, p1);
-		recv_msg(sd, p2, CMD_RESP);
+		send_msg(sd, (union any_msg *) &p1);
+		recv_msg(sd, (union any_msg *) &p2, CMD_RESP);
 		
-		if(p2->resp_msg == 0){
+		if(p2->resp_msg == 0){		
+			temp.sin_family = AF_INET;
+			int errcode = connect(sd, (struct sockaddr *) &temp, sizeof(temp));
 			sd = temp.sin_port; 
 			fd = open(sfile, O_RDWR);
 			send(file(sd, fd);
@@ -43,11 +48,11 @@ int main(char argc, int *argv[]){
 		}
 	}else{
 		p1->msg_type = "CMD_RECV";
-		send_msg(sd, p1);
-		recv_msg(sd, p2, CMD_RESP);
+		send_msg(sd, (union any_msg *) &p1);
+		recv_msg(sd, (union any_msg *) &p2, CMD_RESP);
 		
 		if(p2->resp_msg == 0){
-			int temp = p2->resp_msg.file_size;
+			int temp = (union any_msg *) &p2.file_size;
 			recv_file(sd, sfile, temp);
 		}else{
 			printf("Recieve Error\n");
