@@ -9,15 +9,12 @@ int main(int argc, char *argv[]){
 	prompt_for_address(&temp,"client");
 	prompt_for_port(&temp,"client");
 	
-	printf("Enter copy type => ");
-	scanf("%s", mtype);
-	printf("Enter name of file to send => ");
-	scanf("%s", sfile);
+
+
 	
 	printf("Enter 1 for send or 2 for receive => ");
 	int choice;
 	scanf("%d", &choice);
-	//union any_msg p1;
 	struct send_msg p1;
 	struct resp_msg p2;
 	if(choice == 1){
@@ -28,8 +25,9 @@ int main(int argc, char *argv[]){
 		printf("Incorrect input\n");
 		exit(1);
 	}
-	//p1.msg_type = mtype;
-	//union any_msg p2;
+
+	printf("Enter name of file to send => ");
+	scanf("%s", sfile);
 	
 	int sd = socket(AF_INET, SOCK_STREAM, 0);
 	temp.sin_family = AF_INET;
@@ -39,7 +37,6 @@ int main(int argc, char *argv[]){
 		exit(1);
 	}
 			
-	//int d = temp.sin_port;
 	int fd;
 	
 	if(strcmp(mtype, "CMD_SEND") == 0){
