@@ -4,10 +4,10 @@ int main(int argc, char *argv[]){
 	char sfile[MAX_FILENAME_SIZE];
 	char mtype[10];
 	
-	struct sockaddr_in *temp;
+	struct sockaddr_in temp;
 	
-	prompt_for_address(temp,"client");
-	prompt_for_port(temp,"client");
+	prompt_for_address(&temp,"client");
+	prompt_for_port(&temp,"client");
 	
 	printf("Enter copy type => ");
 	scanf("%s", mtype);
