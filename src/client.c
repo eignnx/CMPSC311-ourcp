@@ -36,6 +36,10 @@ int main(int argc, char *argv[]){
 	int sd = socket(AF_INET, SOCK_STREAM, 0);
 	temp->sin_family = AF_INET;
 	int errcode = connect(sd, (struct sockaddr *) &temp, sizeof(temp));
+	if(errcode == -1){
+		perror("Connect Error\n");
+		exit(1);
+	}
 			
 	//int d = temp.sin_port;
 	int fd;
