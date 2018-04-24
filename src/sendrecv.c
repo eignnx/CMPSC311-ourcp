@@ -24,7 +24,7 @@ void prompt_for_address(struct sockaddr_in *address, char *who)
         // Allow early escape.
         if (buf[0] == 'q' || buf[0] == 'Q') {
             printf("Quitting...\n");
-            exit(0);
+            exit(EXIT_SUCCESS);
         }
 
         if (err > 0) {
@@ -56,7 +56,7 @@ void prompt_for_port(struct sockaddr_in *address, char *who)
         // Allow early escape.
         if (buf[0] == 'q' || buf[0] == 'Q') {
             printf("Quitting...\n");
-            exit(0);
+            exit(EXIT_SUCCESS);
         }
 
         port = atoi(buf);
@@ -104,13 +104,13 @@ void send_msg(int sd, union any_msg *to_send)
         if (err == -1) {
             perror("send_msg: could not send message");
             fprintf(stderr, "\tMessage type was '%x'\n", type);
-            exit(1);
+            exit(EXIT_FAILURE);
         }
     }
     else {
         fprintf(stderr, "send_msg: unrecognized message type '%x'!\n",
                 type);
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
 }
@@ -123,12 +123,12 @@ void recv_msg(int sd, union any_msg *receiving_buf, MsgType msg_type)
     if (bytes_recvd == 0) {
         fprintf(stderr, "recv_msg: no data available, peer may have "
                         "been shutdown\n");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     else if (bytes_recvd == -1) {
         // errno will be generated, so just print that.
         perror("recv_msg: could not recieve data from peer");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     else if (bytes_recvd != bytes_expected) {
         fprintf(stderr, "recv_msg: expected %d bytes, recv'd %d bytes\n",
@@ -142,7 +142,7 @@ void send_data(int sd, struct data_msg *to_send)
     int err = send(sd, (void *) to_send, sizeof(*to_send), 0);
     if (err == -1) {
         perror("send_data: could not send data_msg");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -194,7 +194,7 @@ static int safe_open_for_write(const char *filename, const char *callee)
         sprintf(err_msg, "%s: Could not create/overwrite file "
                          "with name '%s'", callee, filename);
         perror(err_msg);
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     return fd;
@@ -209,7 +209,7 @@ static void safe_close(int fd, const char *callee)
         sprintf(msg, "%s: An error occured while trying to close the "
                      "output file", callee);
         perror(msg);
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -226,7 +226,7 @@ static int safe_write(int fd, const char *buf, int count,
         sprintf(msg, "%s: Unable to write to output file", callee);
         perror(msg);
         safe_close(fd, __func__);
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     
     if (bytes_written != count) {
@@ -236,7 +236,7 @@ static int safe_write(int fd, const char *buf, int count,
                 "\tWrote:    %d\n",
                 callee, count, count, bytes_written);
         safe_close(fd, __func__);
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     return bytes_written;
@@ -257,7 +257,7 @@ void recv_file(int sd, char *filename, int file_size)
             fprintf(stderr, "recv_file: Unexpected msg type '%x'! "
                     "Aborting file transfer.\n", buf.msg_type);
             safe_close(fd, __func__);
-            exit(1);
+            exit(EXIT_FAILURE);
         }
 
         if (buf.data_leng <= 0)
