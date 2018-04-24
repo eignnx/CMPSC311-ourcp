@@ -16,7 +16,7 @@ int main(int argc, char *argv[]){
 	
 	printf("Enter 1 for send or 2 for receive => ");
 	int choice;
-	scanf("%d", choice);
+	scanf("%d", &choice);
 	//union any_msg p1;
 	struct send_msg p1;
 	struct resp_msg p2;
