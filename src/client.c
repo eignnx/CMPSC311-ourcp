@@ -34,7 +34,7 @@ int main(int argc, char *argv[]){
 	//union any_msg p2;
 	
 	int sd = socket(AF_INET, SOCK_STREAM, 0);
-	temp->sin_family = AF_INET;
+	temp.sin_family = AF_INET;
 	int errcode = connect(sd, (struct sockaddr *) &temp, sizeof(temp));
 	if(errcode == -1){
 		perror("Connect Error\n");
@@ -50,8 +50,7 @@ int main(int argc, char *argv[]){
 			send_msg(sd, (union any_msg *) &p1);
 			recv_msg(sd, (union any_msg *) &p2, CMD_RESP);
 		
-			if(p2.status == 0){		
-				sd = temp->sin_port; 
+			if(p2.status == 0){	
 				fd = open(sfile, O_RDWR);
 				send_file(sd, fd);
 				close(fd);
