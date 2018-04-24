@@ -8,7 +8,7 @@
 
 
 
-int main(char argc, int *argv[]) {
+int main(int argc, char *argv[]) {
     char sfile[MAX_FILENAME_SIZE];
     char mtype[10];
 
@@ -47,7 +47,8 @@ int main(char argc, int *argv[]) {
         int sd = server_addr.sin_port;
         union any_message msgBuffer;
         MsgType msgType;
-        recv_msg(sd, type, msgType);
+        union any_msg *buffer;
+        recv_msg(sd, buffer, msgType);
 
         //if the copy type is from client to server: enters a loop that reads the network input for the file contents, and writes the bytes read to the output file;
         if(msgType == "CMD_SEND"){
@@ -56,10 +57,11 @@ int main(char argc, int *argv[]) {
         }
         // if the copy type is from server to client: enters a loop that writes the file contents to the network output
         else if (msgType=="CMD_RECV"){
+            recv_msg(sd, buffer, "CMD_RECV")
             recv_file(sd, "receivedFile", server_addr);
-            FILE file = open("receivedFile", "r");
-            if(locate_file(file.filename)){
-                send_file(sd, file.fd);
+            int fd = open(clientfd, O_RDWR);
+            if(locate_file(buffer.filename)){
+                send_file(sd, fd);
             }
             else{
                 printf("Error: file does not exist on server\n");
@@ -74,3 +76,5 @@ int main(char argc, int *argv[]) {
     close(sockfd);
     return 0;
 }
+
+
