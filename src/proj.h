@@ -130,6 +130,9 @@ void prompt_for_port(struct sockaddr_in *address, char *who);
 // and the function returns false.
 bool locate_file(const char *filename, int *fd);
 
+// Returns the size of the file specified.
+// Will crash the program if file does not exist.
+int size_of_file(int fd);
 
 // Generic message sending and recieving functions. To use, cast
 // argument like:

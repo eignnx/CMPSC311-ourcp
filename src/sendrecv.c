@@ -87,6 +87,19 @@ bool locate_file(const char *filename, int *fd)
     return true;
 }
 
+int size_of_file(int fd)
+{
+    struct stat filestatus;
+
+    int err = fstat(fd, &filestatus);
+    if (err == -1) {
+        perror("size_of_file: Could not get stat structure when "
+               "given a file descriptor");
+        exit(EXIT_FAILURE);
+    }
+
+    return (int) filestatus.st_size;
+}
 
 
 void send_msg(int sd, union any_msg *to_send)
