@@ -140,12 +140,6 @@ bool locate_file(const char *filename, int *fd);
 void send_msg(int sd, union any_msg *to_send);
 void recv_msg(int sd, union any_msg *receiving_buf, MsgType msg_type);
 
-// Specialized send/recv functions for sending data messages.
-// Only use with `struct data_msg` pointers, don't cast!
-// The argument `sd` is the socket descriptor to recv/send from/to.
-void send_data(int sd, struct data_msg *to_send);
-void recv_data(int sd, struct data_msg *receiving_buf);
-
 // Sends the file opened under file descriptor `fd` accross the
 // network to the peer located by socket descriptor `sd`.
 // Assumes both arguments have been opened already.

@@ -137,20 +137,6 @@ void recv_msg(int sd, union any_msg *receiving_buf, MsgType msg_type)
 }
 
 
-void send_data(int sd, struct data_msg *to_send)
-{
-    int err = send(sd, (void *) to_send, sizeof(*to_send), 0);
-    if (err == -1) {
-        perror("send_data: could not send data_msg");
-        exit(EXIT_FAILURE);
-    }
-}
-
-void recv_data(int sd, struct data_msg *receiving_buf)
-{
-    recv_msg(sd, (union any_msg *) receiving_buf, CMD_DATA);
-}
-
 void send_file(int sd, int fd)
 {
     struct data_msg msg = {
