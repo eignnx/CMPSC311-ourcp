@@ -39,11 +39,13 @@ int main(int argc, char *argv[]){
 			
 	int fd;
 	strcpy(p1.filename,sfile);
+	int sizefd = size_of_file(fd);
 	
 	if(choice == 1){
 		if(locate_file(sfile,&fd)){
 			
 			printf("File exists\n");
+			p1.file_size = sizefd;
 			send_msg(sd, (union any_msg *) &p1);
 			recv_msg(sd, (union any_msg *) &p2, CMD_RESP);
 		
