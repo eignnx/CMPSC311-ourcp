@@ -12,7 +12,7 @@ void prompt_for_address(struct sockaddr_in *address, char *who)
 {
     char buf[INP_BUF_SIZE];
 
-    printf("Enter the %s's IP address: ", who);
+    printf("Enter the %s's IP address => ", who);
     while (1) {
         fgets(buf, sizeof(buf), stdin);
         buf[strlen(buf) - 1] = '\0'; // Chop off newline.
@@ -32,12 +32,12 @@ void prompt_for_address(struct sockaddr_in *address, char *who)
         }
         else if (err == 0) {
             printf("Improperly formatted address '%s'\n", buf);
-            printf("Try again: ");
+            printf("Try again => ");
             fflush(stdout);
         }
         else if (err == -1) {
             printf("Could not convert address '%s' to numeric\n", buf);
-            printf("Try again: ");
+            printf("Try again => ");
             fflush(stdout);
         }
     }
@@ -48,7 +48,7 @@ void prompt_for_port(struct sockaddr_in *address, char *who)
     char buf[INP_BUF_SIZE];
     int port;
 
-    printf("Enter the %s's port number: ", who);
+    printf("Enter the %s's port number => ", who);
     while (1) {
         fgets(buf, sizeof(buf), stdin);
         buf[strlen(buf) - 1] = '\0'; // Chop off newline.
@@ -65,7 +65,7 @@ void prompt_for_port(struct sockaddr_in *address, char *who)
         }
         else {
             printf("Bad port number. Must be within 1-65,535.\n");
-            printf("Try again: ");
+            printf("Try again => ");
             fflush(stdout);
         }
     }
