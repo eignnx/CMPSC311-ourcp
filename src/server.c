@@ -46,21 +46,21 @@ int main(int argc, char *argv[]) {
 
         //reads input string for type of copy(client-to-server or server-to-client) and sends the proper response to the client
         int sd = server_addr.sin_port;
-        MsgType msgType;
+        MsgType msgType ;
         union any_msg buffer;
         recv_msg(sd, &buffer, msgType);
 
         //if the copy type is from client to server: enters a loop that reads the network input for the file contents, and writes the bytes read to the output file;
-        if(buffer.msgType == "CMD_SEND"){
+        if(buffer.send.msg_type == "CMD_SEND"){
             send_msg(sd, "OK");
-            recv_file(sd, "receivedFile", buffer.filesize);
+            recv_file(sd, "receivedFile", buffer.send.file_size);
         }
         // if the copy type is from server to client: enters a loop that writes the file contents to the network output
-        else if (buffer.msgType =="CMD_RECV"){
+        else if (buffer.send.msg_type =="CMD_RECV"){
             recv_msg(sd, &buffer, "CMD_RECV");
-            recv_file(sd, "receivedFile", server_addr);
+            recv_file(sd, "receivedFile", buffer.send.file_size);
             int fd = open(clientfd, O_RDWR);
-            if(locate_file(buffer.filename)){
+            if(locate_file(buffer.send.filename, clientfd)){
                 send_file(sd, fd);
             }
             else{
