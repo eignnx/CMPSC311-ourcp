@@ -38,10 +38,11 @@ int main(int argc, char *argv[]){
 	}
 			
 	int fd;
+	strcpy(p1.filename,sfile);
 	
-	if(strcmp(mtype, "CMD_SEND") == 0){
+	if(choice == 1){
 		if(locate_file(sfile,&fd)){
-			strcpy(p1.filename,sfile);
+			
 			printf("File exists\n");
 			send_msg(sd, (union any_msg *) &p1);
 			recv_msg(sd, (union any_msg *) &p2, CMD_RESP);
