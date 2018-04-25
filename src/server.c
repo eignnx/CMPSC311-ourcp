@@ -1,12 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
 #include "proj.h"
-#include <errno.h>
-#include <arpa/inet.h>
-
-
 
 int main(int argc, char *argv[]) {
     int socketfd;
@@ -46,13 +38,19 @@ int main(int argc, char *argv[]) {
 
         //reads input string for type of copy(client-to-server or server-to-client) and sends the proper response to the client
         int sd = server_addr.sin_port;
-        MsgType msgType ;
+        MsgType msgType = CMD_SEND;
         union any_msg buffer;
         recv_msg(sd, &buffer, msgType);
+        
+        union any_msg message;
+        message.response.status = OK;
+        
+        union any_msg errorMessage;
+        message.response.status = errno;
 
         //if the copy type is from client to server: enters a loop that reads the network input for the file contents, and writes the bytes read to the output file;
         if(buffer.send.msg_type == CMD_SEND){
-            send_msg(sd, "OK");
+            send_msg(sd, message);
             recv_file(sd, "receivedFile", buffer.send.file_size);
         }
         // if the copy type is from server to client: enters a loop that writes the file contents to the network output
@@ -65,7 +63,7 @@ int main(int argc, char *argv[]) {
             }
             else{
                 printf("Error: file does not exist on server\n");
-                send_msg(CMD_RESP, errno);
+                send_msg(CMD_RESP, errorMessage);
             }
         }
 
