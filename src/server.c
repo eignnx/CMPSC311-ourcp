@@ -53,9 +53,6 @@ int main(int argc, char *argv[]) {
             send_msg(sd, &message);
             recv_file(sd, buffer.send.filename, buffer.send.file_size);
             }
-            else{
-                close(clientfd);
-            }
         }
         // if the copy type is from server to client: enters a loop that writes the file contents to the network output
         else if (buffer.send.msg_type == CMD_RECV){
@@ -73,7 +70,10 @@ int main(int argc, char *argv[]) {
         
         
         //when done closes the file and the remote sd.
+        printf("closing client connection\n");
+        fflush(stdout);
         close(clientfd);
+       
     }
 }
 
