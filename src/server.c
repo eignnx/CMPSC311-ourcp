@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
         
         
         //reads input string for type of copy(client-to-server or server-to-client) and sends the proper response to the client
-        int sd = server_addr.sin_port;
+        int sd = clientfd;
         int fd;
         MsgType msgType = CMD_SEND;
         union any_msg buffer;
