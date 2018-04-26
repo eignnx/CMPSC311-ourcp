@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
         int addrlen=sizeof(client_addr);
 
         listen(socketfd, 1);
-        clientfd = accept(socketfd, (struct sockaddr*)&client_addr, &addrlen);
+        clientfd = accept(socketfd, (struct sockaddr*)&client_addr, (socklen_t *) &addrlen);
         printf("%s:%d connected\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
 
 
