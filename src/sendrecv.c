@@ -12,7 +12,7 @@ void prompt_for_address(struct sockaddr_in *address, char *who)
 {
     char buf[INP_BUF_SIZE];
 
-    printf("Enter the %s's IP address => ", who);
+    printf("Enter the server's IP address => ");
     while (1) {
         fgets(buf, sizeof(buf), stdin);
         buf[strlen(buf) - 1] = '\0'; // Chop off newline.
@@ -48,7 +48,7 @@ void prompt_for_port(struct sockaddr_in *address, char *who)
     char buf[INP_BUF_SIZE];
     int port;
 
-    printf("Enter the %s's port number => ", who);
+    printf("Enter the server's port number => ");
     while (1) {
         fgets(buf, sizeof(buf), stdin);
         buf[strlen(buf) - 1] = '\0'; // Chop off newline.
