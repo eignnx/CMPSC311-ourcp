@@ -76,7 +76,8 @@ int main(int argc, char *argv[]){
 			int temp = p2.file_size;
 			recv_file(sd, sfile, temp);
 		}else{
-			printf("Recieve Error\n");
+			errno = p2.status;
+			perror("File could not be sent");
 		}
 	}
 	close(sd);
