@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
         }
         // if the copy type is from server to client: enters a loop that writes the file contents to the network output
         else if (buffer.send.msg_type == CMD_RECV){
-            if(locate_file(buffer.send.filename, fd)){
+            if(locate_file(buffer.send.filename, &fd)){
                 message.resp.file_size = size_of_file(fd);
                 send_file(sd, fd);
                 send_msg(sd, &message);
