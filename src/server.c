@@ -43,11 +43,13 @@ int main(int argc, char *argv[]) {
         recv_msg(sd, &buffer, msgType);
         
         union any_msg message;
-        message.response.status = OK;
+        message.resp.status = OK;
+        message.resp.msg_type = CMD_RESP;
         
         union any_msg errorMessage;
-        message.response.status = errno;
-
+        errorMessage.resp.status = errno;
+        errorMessage.resp.msg_type = CMD_RESP;
+        
         //if the copy type is from client to server: enters a loop that reads the network input for the file contents, and writes the bytes read to the output file;
         if(buffer.send.msg_type == CMD_SEND){
             send_msg(sd, message);
