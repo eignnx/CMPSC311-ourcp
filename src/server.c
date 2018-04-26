@@ -59,12 +59,12 @@ int main(int argc, char *argv[]) {
             if(locate_file(buffer.send.filename, &clientfd)){
                 message.resp.filesize = size_of_file(fd);
                 send_file(sd, fd);
-                send_msg(CMD_RESP, message);
+                send_msg(sd, message);
             }
             else{
                 errorMessage.resp.status = errno;
                 printf("Error: file does not exist on server\n");
-                send_msg(CMD_RESP, errorMessage);
+                send_msg(sd, errorMessage);
             }
         }
 
