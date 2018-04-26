@@ -57,6 +57,10 @@ int main(int argc, char *argv[]){
 				printf("Send Error\n");
 			}
 		}else{
+			struct send_msg temp;
+			temp.msg_type = CMD_SEND
+			temp.file_size = -1;
+			send_msg(sd, (union any_msg *) &temp);
 			printf("File does not exist\n");
 			exit(1);
 		}
