@@ -52,12 +52,16 @@ int main(int argc, char *argv[]) {
             if (buffer.send.file_size >= 0){
             send_msg(sd, &message);
             recv_file(sd, buffer.send.filename, buffer.send.file_size);
+                printf("Received file: %s\n", buffer.send.filename);
+                printf("Received file length: %d\n", buffer.send.file_size);
             }
         }
         // if the copy type is from server to client: enters a loop that writes the file contents to the network output
         else if (buffer.send.msg_type == CMD_RECV){
             if(locate_file(buffer.send.filename, &fd)){
                 message.resp.file_size = size_of_file(fd);
+                printf("Sent file: %s\n", buffer.send.filename);
+                printf("Sent file length: %d\n", buffer.send.file_size);
                 send_msg(sd, &message);
                 send_file(sd, fd);
             }
