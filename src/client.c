@@ -45,7 +45,7 @@ int main(int argc, char *argv[]){
         if(locate_file(sfile,&fd)){
 			
 			printf("File exists\n");
-			p1.file_size = size_of_file(fd);;
+			p1.file_size = size_of_file(fd);
 			send_msg(sd, (union any_msg *) &p1);
 			recv_msg(sd, (union any_msg *) &p2, CMD_RESP);
 		
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]){
 			}
 		}else{
 			struct send_msg temp;
-			temp.msg_type = CMD_SEND
+			temp.msg_type = CMD_SEND;
 			temp.file_size = -1;
 			send_msg(sd, (union any_msg *) &temp);
 			printf("File does not exist\n");
