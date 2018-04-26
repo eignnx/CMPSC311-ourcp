@@ -25,8 +25,6 @@ int main(int argc, char *argv[]){
 		exit(1);
 	}
 
-	printf("Enter name of file to send => ");
-	scanf("%s", sfile);
 	
 	int sd = socket(AF_INET, SOCK_STREAM, 0);
 	temp.sin_family = AF_INET;
@@ -37,10 +35,14 @@ int main(int argc, char *argv[]){
 	}
 			
 	int fd;
-	strcpy(p1.filename,sfile);
 	
 	if(choice == 1){
-		if(locate_file(sfile,&fd)){
+
+        printf("Enter name of file to send => ");
+        scanf("%s", sfile);
+        strcpy(p1.filename,sfile);
+
+        if(locate_file(sfile,&fd)){
 			
 			printf("File exists\n");
 			p1.file_size = size_of_file(fd);;
@@ -61,6 +63,11 @@ int main(int argc, char *argv[]){
 		
 		
 	}else{
+
+        printf("Enter name of file to receive => ");
+        scanf("%s", sfile);
+        strcpy(p1.filename,sfile);
+
 		p1.msg_type = CMD_RECV;
 		send_msg(sd, (union any_msg *) &p1);
 		recv_msg(sd, (union any_msg *) &p2, CMD_RESP);
