@@ -2,7 +2,6 @@
 
 int main(int argc, char *argv[]){
 	char sfile[MAX_FILENAME_SIZE];
-	char mtype[10];
 	
 	struct sockaddr_in temp;
 	
