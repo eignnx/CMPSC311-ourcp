@@ -2,18 +2,15 @@
 
 int main(int argc, char *argv[]) {
     int socketfd;
-    char sfile[MAX_FILENAME_SIZE];
-    char mtype[10];
-
     struct sockaddr_in server_addr;
-
+    
     //prompt for ip address and port
     prompt_for_address(&server_addr, "server");
     prompt_for_port(&server_addr, "server");
-
-
+    
+    
     server_addr.sin_family = AF_INET;
-
+    
     //Only accept TCP connections
     if ((socketfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         printf("Error: cannot create socket of type TCP\n");
@@ -30,12 +27,12 @@ int main(int argc, char *argv[]) {
         int clientfd = 0;
         struct sockaddr_in client_addr;
         int addrlen=sizeof(client_addr);
-
+        
         listen(socketfd, 1);
         clientfd = accept(socketfd, (struct sockaddr*)&client_addr, (socklen_t *) &addrlen);
         printf("%s:%d connected\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
-
-
+        
+        
         //reads input string for type of copy(client-to-server or server-to-client) and sends the proper response to the client
         int sd = server_addr.sin_port;
         int fd;
@@ -68,8 +65,8 @@ int main(int argc, char *argv[]) {
                 send_msg(sd, &errorMessage);
             }
         }
-
-
+        
+        
         //when done closes the file and the remote sd.
         close(clientfd);
     }
