@@ -51,6 +51,7 @@ int main(int argc, char *argv[]){
 		
 			if(p2.status == OK){
 				fd = open(sfile, O_RDWR);
+				printf("Sending %d-byte file...\n", p1.file_size);
 				send_file(sd, fd);
 				printf("File sent.\n");
 				close(fd);
@@ -79,7 +80,9 @@ int main(int argc, char *argv[]){
 		
 		if(p2.status == OK){
 			int temp = p2.file_size;
+			printf("Receiving %d-byte file...\n", temp);
 			recv_file(sd, sfile, temp);
+			printf("File received.\n");
 		}else{
 			errno = p2.status;
 			perror("File could not be sent");
