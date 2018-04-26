@@ -52,6 +52,7 @@ int main(int argc, char *argv[]){
 			if(p2.status == 0){	
 				fd = open(sfile, O_RDWR);
 				send_file(sd, fd);
+				printf("File sent.\n");
 				close(fd);
 			}else{
 				printf("Send Error\n");
