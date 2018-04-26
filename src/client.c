@@ -38,18 +38,18 @@ int main(int argc, char *argv[]){
 	
 	if(choice == 1){
 
-        printf("Enter name of file to send => ");
-        scanf("%s", sfile);
-        strcpy(p1.filename,sfile);
+        	printf("Enter name of file to send => ");
+        	scanf("%s", sfile);
+        	strcpy(p1.filename,sfile);
 
-        if(locate_file(sfile,&fd)){
+        	if(locate_file(sfile,&fd)){
 			
 			printf("File exists\n");
 			p1.file_size = size_of_file(fd);
 			send_msg(sd, (union any_msg *) &p1);
 			recv_msg(sd, (union any_msg *) &p2, CMD_RESP);
 		
-			if(p2.status == 0){	
+			if(p2.status == OK){
 				fd = open(sfile, O_RDWR);
 				send_file(sd, fd);
 				printf("File sent.\n");
@@ -77,7 +77,7 @@ int main(int argc, char *argv[]){
 		send_msg(sd, (union any_msg *) &p1);
 		recv_msg(sd, (union any_msg *) &p2, CMD_RESP);
 		
-		if(p2.status == 0){
+		if(p2.status == OK){
 			int temp = p2.file_size;
 			recv_file(sd, sfile, temp);
 		}else{
