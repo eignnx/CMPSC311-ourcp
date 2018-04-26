@@ -47,7 +47,6 @@ int main(int argc, char *argv[]) {
         message.resp.msg_type = CMD_RESP;
         
         union any_msg errorMessage;
-        errorMessage.resp.status = errno;
         errorMessage.resp.msg_type = CMD_RESP;
         
         //if the copy type is from client to server: enters a loop that reads the network input for the file contents, and writes the bytes read to the output file;
@@ -64,6 +63,7 @@ int main(int argc, char *argv[]) {
                 send_file(sd, fd);
             }
             else{
+                errorMessage.resp.status = errno;
                 printf("Error: file does not exist on server\n");
                 send_msg(CMD_RESP, errorMessage);
             }
