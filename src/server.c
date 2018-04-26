@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
         
         //if the copy type is from client to server: enters a loop that reads the network input for the file contents, and writes the bytes read to the output file;
         if(buffer.send.msg_type == CMD_SEND){
-            if (buffer.send.file_size > 0){
+            if (buffer.send.file_size >= 0){
             send_msg(sd, &message);
             recv_file(sd, buffer.send.filename, buffer.send.file_size);
             }
