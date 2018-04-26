@@ -56,8 +56,8 @@ int main(int argc, char *argv[]) {
         else if (buffer.send.msg_type == CMD_RECV){
             if(locate_file(buffer.send.filename, &fd)){
                 message.resp.file_size = size_of_file(fd);
-                send_file(sd, fd);
                 send_msg(sd, &message);
+                send_file(sd, fd);
             }
             else{
                 errorMessage.resp.status = errno;
